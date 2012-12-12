@@ -22,7 +22,7 @@ class Client(object):
     def size(self):
 	req = urllib2.Request(self.url_pattern%(self.hostname, self.port, self.name, 'size'))
 	response = urllib2.urlopen(req)
-	return response.read()
+	return int(response.read())
 
     def push(self, data):
 	req = urllib2.Request(self.url_pattern%(self.hostname, self.port, self.name, 'push'), data)
