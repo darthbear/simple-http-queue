@@ -51,18 +51,26 @@ class SizeHandler(tornado.web.RequestHandler):
 	    self.write(queue.size())
 
 class DropHandler(tornado.web.RequestHandler):
-    def delete(self, queueName):
+    def drop(self, queueName):
 	queue = getQueue(queueName)
 	queue.drop()
 	removeQueue(queueName)
+
+    def delete(self, queueName):
+	self.drop(queueName)
+        self.write('OK')
+
+    # in case delete method is not available
+    def post(self, queueName):
+	self.drop(queueName)
         self.write('OK')
 
 application = tornado.web.Application([
-    (r"/queue/([^/]*)/peek", PeekHandler),
-    (r"/queue/([^/]*)/size", SizeHandler),
-    (r"/queue/([^/]*)/pop", PopHandler),
-    (r"/queue/([^/]*)/push", PushHandler),
-    (r"/queue/([^/]*)/drop", DropHandler)
+    (r"/queues/([^/]*)/peek", PeekHandler),
+    (r"/queues/([^/]*)/size", SizeHandler),
+    (r"/queues/([^/]*)/pop", PopHandler),
+    (r"/queues/([^/]*)/push", PushHandler),
+    (r"/queues/([^/]*)/drop", DropHandler)
 ])
 
 if __name__ == "__main__":

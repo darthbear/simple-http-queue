@@ -67,7 +67,7 @@ class SimpleQueue(object):
 
     def push(self, data):
         with self._get_conn() as conn:
-            conn.execute(self.pushSql%self.name, data) 
+            conn.execute(self.pushSql%self.name, (data,)) 
 
     def drop(self):
         with self._get_conn() as conn:
