@@ -67,7 +67,11 @@ class SimpleQueue(object):
 
     def push(self, data):
         with self._get_conn() as conn:
-            conn.execute(self.pushSql%self.name, (data,)) 
+            try:
+            	conn.execute(self.pushSql%self.name, (buffer(data),)) 
+            except StopIteration:
+		return False
+	return True
 
     def drop(self):
         with self._get_conn() as conn:
