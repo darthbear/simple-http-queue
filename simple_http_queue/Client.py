@@ -2,9 +2,18 @@ import urllib
 import urllib2
 
 class Client(object):
-    url_pattern = 'http://%s:%d/queues/%s/%s'
+    FIFO = 0
+    LIFO = 1
 
-    def __init__(self, hostname, port, name):
+    queue_url_pattern = 'http://%s:%d/queues/%s/%s'
+    stack_url_pattern = 'http://%s:%d/stacks/%s/%s'
+
+    def __init__(self, hostname, port, name, queueType = FIFO):
+	if queueType == Client.FIFO:
+	   self.url_pattern = Client.queue_url_pattern
+	else:
+	   self.url_pattern = Client.stack_url_pattern
+
 	self.hostname = hostname
 	self.port = port
 	self.name = name
@@ -35,7 +44,8 @@ class Client(object):
 	return response.read()
 
 
-def test(hostname, port, queue):
+def testQueue(hostname, port, queue):
+    print "Testing Queue..."
     c = Client(hostname, port, queue)
     print c.push('data1')
     print c.push('data2')
@@ -47,4 +57,18 @@ def test(hostname, port, queue):
     print c.pop()
     print c.drop()
 
-#test('localhost', 8888, 'queue1')
+def testStack(hostname, port, stack):
+    print "Testing Stack..."
+    c = Client(hostname, port, stack, Client.LIFO)
+    print c.push('data1')
+    print c.push('data2')
+    print c.push('data3')
+    print c.peek()
+    print c.size()
+    print c.pop()
+    print c.pop()
+    print c.pop()
+    print c.drop()
+
+testQueue('localhost', 8888, 'queue1')
+testStack('localhost', 8888, 'stack1')

@@ -10,20 +10,30 @@ except ImportError:
 #
 
 class SimpleQueue(object):
+    FIFO = 0
+    LIFO = 1
     createSql = 'CREATE TABLE IF NOT EXISTS %s (id INTEGER PRIMARY KEY AUTOINCREMENT, data TEXT)'
     dropSql = "DROP TABLE IF EXISTS %s"
     sizeSql = 'SELECT COUNT(*) FROM %s'
-    peekSql = 'SELECT id, data FROM %s ORDER BY id DESC LIMIT 1'
+    peekFirstSql = 'SELECT id, data FROM %s ORDER BY id DESC LIMIT 1'
+    peekLastSql = 'SELECT id, data FROM %s ORDER BY id ASC LIMIT 1'
     pushSql = 'INSERT INTO %s (data) VALUES(?)'
     popSql = 'DELETE FROM %s WHERE id=%d'
     writeLockSql = 'BEGIN IMMEDIATE'
 
-    def __init__(self, path, name):
+    def __init__(self, path, name, queue_type = FIFO):
 	self.path = os.path.abspath(path)
 	self._connection_cache = {}
-	self.name = name
+
+	if queue_type == SimpleQueue.FIFO:
+	    self.peekSql = self.peekLastSql
+	    self.name = "fifo_%s"%name
+	else:
+	    self.peekSql = self.peekFirstSql
+	    self.name = "lifo_%s"%name
+
         with self._get_conn() as conn:
-            conn.execute(self.createSql%name)
+            conn.execute(self.createSql%self.name)
 
     def _get_conn(self):
         id = get_ident()
@@ -51,7 +61,7 @@ class SimpleQueue(object):
 	with self._get_conn() as conn:
             cursor = conn.execute(self.peekSql%self.name)
             try:
-                return str(cursor.next()[0])
+                return str(cursor.next()[1])
             except StopIteration:
                 return None
 	return None
