@@ -70,5 +70,5 @@ def testStack(hostname, port, stack):
     print c.pop()
     print c.drop()
 
-testQueue('localhost', 8888, 'queue1')
-testStack('localhost', 8888, 'stack1')
+#testQueue('localhost', 8888, 'queue1')
+#testStack('localhost', 8888, 'stack1')
